@@ -1,33 +1,48 @@
-const db = require('../data/seeds/01-schemes');
+const db = require('../data/db-config');
 
 module.exports = {
-  find,
-  findById,
-  findUserPosts,
-  add,
+    find,
+    findById,
+    findSteps,
+    add,
+    update,
+    remove
 };
 
 function find() {
-  return db('users');
+    return db('schemes');
 }
 
 function findById(id) {
-  return db('users')
-    .where({ id })
-    .first();
+    return db('schemes')
+        .where({ id })
+        .first();
 }
 
-function findUserPosts(userId) {
-  return db('posts as p')
-    .join('users as u', 'u.id', 'p.user_id')
-    .select('p.id', 'p.contents as quote', 'u.username as saidBy')
-    .where({ user_id: userId });
+function findSteps(schemeID) {
+    return db('steps')
+        .join('schemes', 'steps.scheme_id', '=', 'schemes.id')
+        .select('schemes.scheme_name', 'steps.*')
+        .where({ scheme_id: schemeID })
+        .orderBy('step_number')
 }
 
-function add(user) {
-  return db('users')
-    .insert(user, 'id')
-    .then(([id]) => {
-      return findById(id);
-    });
+function add(scheme) {
+    return db('schemes')
+        .insert(scheme, 'id')
+        .then(([id]) => {
+            return findById(id);
+        });
+}
+
+function update(scheme, id) {
+    return db('schemes')
+        .where('id', Number(id))
+        .update(scheme);
+}
+
+function remove(id) {
+    return db('schemes')
+        .where('id', Number(id))
+        .del();
 }
